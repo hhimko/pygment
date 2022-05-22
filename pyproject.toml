@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "pygment"
+version = "0.1.0"
+description = ""
+authors = ["hhimko"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pygame = "^2.1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+mypy = "^0.950"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,17 @@
+.vscode
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# poetry
+poetry.lock
+dist/
+
+# pytest
+.pytest_cache
