@@ -54,7 +54,12 @@ def str_to_unit(value: str) -> SizeUnitType | float:
         The supported format is `\\s+<float value>\\s+<unit identifier>\\s+` where `\\s+` means an optional sequence with arbitrary length 
         of white characters and `<unit identifier>` is either a name of any SizeUnitType subclass, 'px' or an empty string. 
         For the last two `<unit identifier>` value cases an unchanged float value parsed from `<float value>` is returned.
-    
+        
+        Args:
+            value: the string to be parsed
+        
+        Raises:
+            ValueError when the string contents could not be parsed
     """
     unit_name_mapping: dict[str, type[SizeUnitType] | Callable[[float], float]] = {
         unit.__name__: unit  for unit in SizeUnitType.__subclasses__()
@@ -64,7 +69,7 @@ def str_to_unit(value: str) -> SizeUnitType | float:
         {'': identity, "px": identity}
     ) 
     
-    unit = re.sub(r"\A[\s\d\.]+|\s+$", '', value)
+    unit = re.sub(r"\A[\s\d\.-]+|\s+$", '', value)
     unit_wrapper = unit_name_mapping.get(unit)
     if not unit_wrapper:
         raise ValueError(f"could not convert string '{value}' to unit. invalid size unit identifier '{unit}'") 
