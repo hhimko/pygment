@@ -9,7 +9,6 @@ __all__ = ["SizeUnitType"]
 class SizeUnitType(ABC):
     """ Abstract class representing a computable size unit. """
     __slots__ = ("_value")
-    
     def __init__(self, value: float):
         self._value = value / 100
         

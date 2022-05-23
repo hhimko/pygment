@@ -20,7 +20,7 @@ def test_str_to_unit_returns_expected_type(unit_spec: str, expected: type):
 @pytest.mark.parametrize("unit_spec, expected", [
         ("1",               1),
         (".0px",          0.0),
-        ("12 sh",          12),
+        ("12. sh",       12.0),
         ("-98.76pw",   -98.76)
 ])
 def test_str_to_unit_returns_expected_value(unit_spec: str, expected: float):
