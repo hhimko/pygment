@@ -5,6 +5,7 @@ from weakref import ReferenceType
 import pygment
 from pygment.editor.type import SizeUnitType, _UnitRect
 from pygment.editor.unit import str_to_unit
+from pygment.editor import Style
         
 _TupleI3 = tuple[int,int,int]     
 _TupleI4 = tuple[int,int,int,int]
@@ -12,12 +13,13 @@ _TupleI4 = tuple[int,int,int,int]
 
 class BaseComponent(ABC):
     """ Base class defining a renderable UI element. """
-    def __init__(self, name: str, rect: _UnitRect):
+    def __init__(self, name: str, rect: _UnitRect, **kwargs):
         self._name = name
         self._parent: ReferenceType[BaseComponent] | None = None
         
         self.x, self.y, self.width, self.height = rect
         
+        self.style = kwargs
         self._dirty = True # forces the element to be redrawn on first render
         
     
@@ -161,18 +163,17 @@ class BaseComponent(ABC):
         return self._height
     
     
-    def join(self, container: pygment.component.BaseContainer[BaseComponent]) -> None:
-        """ Join a container component as a child in order to inherit its style.
-            Alernatively you can call `container.add(component)`.
-
-            Args:
-                container: the container to join
-                
-            Raises:
-                `ValueError` when the component is already assigned to a different parent or the container
-                already contains an component with the same name
-        """
-        container.add(self)
+    @property 
+    def style(self) -> Style:
+        return self._style
+    
+    
+    @style.setter
+    def style(self, value: Style | dict) -> None:
+        if isinstance(value, Style):
+            self._style = value
+        else:
+            self._style = Style(value)
     
     
     @abstractmethod
@@ -192,5 +193,19 @@ class BaseComponent(ABC):
             Args:
                 renderer: `ViewRenderer` object
         """
-        pass
+        pass    
+    
+    
+    def join(self, container: pygment.component.BaseContainer[BaseComponent]) -> None:
+        """ Join a container component as a child in order to inherit its style.
+            Alernatively you can call `container.add(component)`.
+
+            Args:
+                container: the container to join
+                
+            Raises:
+                `ValueError` when the component is already assigned to a different parent or the container
+                already contains an component with the same name
+        """
+        container.add(self)
         
