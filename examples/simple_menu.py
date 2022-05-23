@@ -7,7 +7,7 @@ window = pygame.display.set_mode((400, 600))
 
 renderer = pygment.ViewRenderer(window)
 layout = [
-    pygment.component.Button()
+    
 ]
 
 

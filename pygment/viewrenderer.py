@@ -6,5 +6,7 @@ class ViewRenderer:
         self.surface = surface
         
         
-    def render(self) -> None:
-        pass
+    def render(self, layout) -> None:
+        for element in layout:
+            element.render()
+            
