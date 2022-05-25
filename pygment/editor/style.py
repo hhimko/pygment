@@ -13,5 +13,7 @@ class Style(dict[str, Any]):
     
     
     def __setattr__(self, name: str, value: Any) -> None:
+        if name in dir(self):
+            raise AttributeError(f"attribute '{name}' is read-only")
         return super().__setitem__(name, value)
     
