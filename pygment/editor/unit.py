@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import Callable
 import re
 
+import pygame
+
 import pygment
 from pygment.editor.type import SizeUnitType
 
@@ -11,8 +13,8 @@ __all__ = ["sw", "sh", "pw", "ph", "str_to_unit"]
 class sw(SizeUnitType):
     """ Graphic unit representing a 1% of the renderer surface width. """
     __slots__ = ("_value")
-    def evaluate(self, obj: pygment.component.BaseComponent, renderer: pygment.ViewRenderer) -> int:
-        return round(renderer.surface.get_width() * self._value)
+    def evaluate(self, obj: pygment.component.BaseComponent, surface: pygame.surface.Surface) -> int:
+        return round(surface.get_width() * self._value)
     
 
 
@@ -20,8 +22,8 @@ class sw(SizeUnitType):
 class sh(SizeUnitType):
     """ Graphic unit representing a 1% of the renderer surface height. """
     __slots__ = ("_value")
-    def evaluate(self, obj: pygment.component.BaseComponent, renderer: pygment.ViewRenderer) -> int:
-        return round(renderer.surface.get_height() * self._value)
+    def evaluate(self, obj: pygment.component.BaseComponent, surface: pygame.surface.Surface) -> int:
+        return round(surface.get_height() * self._value)
     
     
     
@@ -29,11 +31,11 @@ class sh(SizeUnitType):
 class pw(SizeUnitType):
     """ Graphic unit representing a 1% of the object's parent width. """
     __slots__ = ("_value")
-    def evaluate(self, obj: pygment.component.BaseComponent, renderer: pygment.ViewRenderer) -> int:
+    def evaluate(self, obj: pygment.component.BaseComponent, surface: pygame.surface.Surface) -> int:
         if not obj.parent:
-            return round(renderer.surface.get_width() * self._value)
+            return round(surface.get_width() * self._value)
         
-        parent_width = obj.parent.get_width(renderer)
+        parent_width = obj.parent.get_width(surface)
         return round(parent_width * self._value)
     
     
@@ -42,11 +44,11 @@ class pw(SizeUnitType):
 class ph(SizeUnitType):
     """ Graphic unit representing a 1% of the object's parent height. """
     __slots__ = ("_value")
-    def evaluate(self, obj: pygment.component.BaseComponent, renderer: pygment.ViewRenderer) -> int:
+    def evaluate(self, obj: pygment.component.BaseComponent, surface: pygame.surface.Surface) -> int:
         if not obj.parent:
-            return round(renderer.surface.get_height() * self._value)
+            return round(surface.get_height() * self._value)
 
-        parent_height = obj.parent.get_height(renderer)
+        parent_height = obj.parent.get_height(surface)
         return round(parent_height * self._value)
     
     

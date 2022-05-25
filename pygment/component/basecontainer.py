@@ -1,15 +1,16 @@
 from __future__ import annotations
-from typing import Generic, TypeVar, Iterator
+from typing import Any, Generic, TypeVar, Iterator
 import weakref
 
 from pygment.component.basecomponent import BaseComponent
 from pygment.editor.type import _UnitRect
+from pygment.editor import Style
 
 
 _T = TypeVar('_T', bound=BaseComponent)
 class BaseContainer(BaseComponent, Generic[_T]):
-    def __init__(self, name: str, rect: _UnitRect, *elements: _T, **kwargs):
-        super().__init__(name, rect, **kwargs)
+    def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, *elements: _T, **kwargs):
+        super().__init__(name, rect, style, **kwargs)
         self.elements: dict[str, _T] = {} # built-in dict has the ability to remember insertion order since python3.7
         
         for element in elements:
@@ -53,3 +54,4 @@ class BaseContainer(BaseComponent, Generic[_T]):
         
     def __iter__(self) -> Iterator[_T]:
         return iter(self.elements.values())
+    

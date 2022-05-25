@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 import pygment
+import pygame
 
 __all__ = ["SizeUnitType"]
 
@@ -24,7 +25,7 @@ class SizeUnitType(ABC):
         
         
     @abstractmethod
-    def evaluate(self, obj: pygment.component.BaseComponent, renderer: pygment.ViewRenderer) -> int:
+    def evaluate(self, obj: pygment.component.BaseComponent, surface: pygame.surface.Surface) -> int:
         """ Compute this unit's value for a given component and renderer. """
         pass
     

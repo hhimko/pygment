@@ -1,38 +1,51 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from weakref import ReferenceType
+from typing import Any
+import uuid
+
+import pygame
 
 import pygment
 from pygment.editor.type import SizeUnitType, _UnitRect
 from pygment.editor.unit import str_to_unit
 from pygment.editor import Style
         
-_TupleI3 = tuple[int,int,int]     
-_TupleI4 = tuple[int,int,int,int]
-
 
 class BaseComponent(ABC):
     """ Base class defining a renderable UI element. """
-    def __init__(self, name: str, rect: _UnitRect, **kwargs):
+    def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, **kwargs):
         self._name = name
         self._parent: ReferenceType[BaseComponent] | None = None
+        self._uuid = uuid.uuid4()
         
         self.x, self.y, self.width, self.height = rect
         
-        self.style = kwargs
-        self._dirty = True # forces the element to be redrawn on first render
+        self.style = Style(style | kwargs)
+        self.is_dirty = True # forces the element to be redrawn on first render
         
     
     @property
     def name(self) -> str:
+        """ Get this component's name. """
         return self._name
     
     
     @property
     def parent(self) -> BaseComponent | None:
+        """ Get this component's parent element. 
+            
+            If this object doesn't have a parent, None is returned. 
+        """
         if not self._parent:
             return None
         return self._parent()
+    
+    
+    @property
+    def uuid(self) -> uuid.UUID:
+        """ Get this component's UUID. """
+        return self._uuid
     
     
     @property 
@@ -54,16 +67,16 @@ class BaseComponent(ABC):
         self._x = value
         
         
-    def get_x(self, renderer: pygment.ViewRenderer) -> float:
-        """ Compute this component's x position for a passed renderer screen.
+    def get_x(self, surface: pygame.surface.Surface) -> float:
+        """ Compute this component's x position based on a passed surface's dimensions. 
         
             Getting the x position value with this method guarantees a float return type.
 
             Args:
-                renderer: `ViewRenderer` object from where to get the surface dimensions
+                surface: pygame `Surface` object
         """
         if isinstance(self._x, SizeUnitType):
-            return self._x.evaluate(self, renderer)
+            return self._x.evaluate(self, surface)
         return self._x
         
         
@@ -86,16 +99,16 @@ class BaseComponent(ABC):
         self._y = value
         
         
-    def get_y(self, renderer: pygment.ViewRenderer) -> float:
-        """ Compute this component's y position for a passed renderer screen.
+    def get_y(self, surface: pygame.surface.Surface) -> float:
+        """ Compute this component's y position based on a passed surface's dimensions. 
         
             Getting the y position value with this method guarantees a float return type.
 
             Args:
-                renderer: `ViewRenderer` object from where to get the surface dimensions
+                surface: pygame `Surface` object
         """
         if isinstance(self._y, SizeUnitType):
-            return self._y.evaluate(self, renderer)
+            return self._y.evaluate(self, surface)
         return self._y
 
         
@@ -118,16 +131,16 @@ class BaseComponent(ABC):
         self._width = value
         
 
-    def get_width(self, renderer: pygment.ViewRenderer) -> float:
-        """ Compute this component's width for a passed renderer screen.
+    def get_width(self, surface: pygame.surface.Surface) -> float:
+        """ Compute this component's width based on a passed surface's dimensions. 
         
             Getting the width value with this method guarantees a float return type.
 
             Args:
-                renderer: `ViewRenderer` object from where to get the surface dimensions
+                surface: pygame `Surface` object
         """
         if isinstance(self._width, SizeUnitType):
-            return self._width.evaluate(self, renderer)
+            return self._width.evaluate(self, surface)
         return self._width
     
     
@@ -150,30 +163,28 @@ class BaseComponent(ABC):
         self._height = value
 
 
-    def get_height(self, renderer: pygment.ViewRenderer) -> float:
-        """ Compute this component's height for a passed renderer screen.
+    def get_height(self, surface: pygame.surface.Surface) -> float:
+        """ Compute this component's height based on a passed surface's dimensions. 
         
             Getting the height value with this method guarantees a float return type.
 
             Args:
-                renderer: `ViewRenderer` object from where to get the surface dimensions
+                surface: pygame `Surface` object
         """
         if isinstance(self._height, SizeUnitType):
-            return self._height.evaluate(self, renderer)
+            return self._height.evaluate(self, surface)
         return self._height
     
     
-    @property 
-    def style(self) -> Style:
-        return self._style
-    
-    
-    @style.setter
-    def style(self, value: Style | dict) -> None:
-        if isinstance(value, Style):
-            self._style = value
-        else:
-            self._style = Style(value)
+    def get_rect(self, surface: pygame.surface.Surface) -> pygame.Rect:
+        """ Return a new `pygame.Rect` object from this component's position and size based on a passed surface's dimensions. 
+        
+            Args:
+                surface: pygame `Surface` object
+        """
+        x, y = self.get_x(surface), self.get_y(surface)
+        w, h = self.get_width(surface), self.get_height(surface)
+        return pygame.Rect(x, y, w, h)
     
     
     @abstractmethod
@@ -187,16 +198,16 @@ class BaseComponent(ABC):
 
 
     @abstractmethod
-    def render(self, renderer: pygment.ViewRenderer) -> None:
+    def render(self, surface: pygame.surface.Surface) -> None:
         """ Draw the component on screen. 
         
             Args:
-                renderer: `ViewRenderer` object
+                surface: pygame `Surface` object
         """
         pass    
     
     
-    def join(self, container: pygment.component.BaseContainer[BaseComponent]) -> None:
+    def join(self, container: pygment.component.BaseContainer) -> None:
         """ Join a container component as a child in order to inherit its style.
             Alernatively you can call `container.add(component)`.
 
