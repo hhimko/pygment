@@ -1,2 +1,2 @@
-from pygment import component
-from pygment.viewrenderer import ViewRenderer
+from . import component
+from .viewrenderer import ViewRenderer

@@ -1,1 +1,1 @@
-from pygment.editor.style import Style
+from .style import Style

@@ -39,7 +39,7 @@ class BaseContainer(BaseComponent, Generic[_T]):
         
     def __getattr__(self, attr: str) -> _T:
         if not "elements" in dir(self):
-            raise KeyError(f"Container '{self.name}' is missing 'self.elements'")
+            raise AttributeError(f"Container '{self.name}' is missing 'self.elements'")
         
         element = self.elements.get(attr) 
         if element is None:
