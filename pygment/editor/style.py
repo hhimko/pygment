@@ -39,15 +39,14 @@ def isinstance_generic(val: Any, type_spec: _UnionType | tuple[Type, ...]) -> bo
                     origin: Type = t.__origin__ # type: ignore
                     args: tuple[Type, ...] = t.__args__ # type: ignore
                     if origin is list:
-                        return type(val) is list and all(isinstance_generic(v, args[0]) for v in val)
+                        if type(val) is list and all(isinstance_generic(v, args[0]) for v in val): return True
                     elif origin is tuple:
                         if args[1] is Ellipsis:
-                            return type(val) is tuple and all(isinstance_generic(v, args[0]) for v in val)
-                        return type(val) is tuple and len(val) == len(args) and all(isinstance_generic(v, a) for v,a in zip(val, args))
+                            if type(val) is tuple and all(isinstance_generic(v, args[0]) for v in val): return True
+                        if type(val) is tuple and len(val) == len(args) and all(isinstance_generic(v, a) for v,a in zip(val, args)): return True
                     else: 
                         return True
-                else:
-                    return True
+                return False
         except Exception:
             return True  
     return True
