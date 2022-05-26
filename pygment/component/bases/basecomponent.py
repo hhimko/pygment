@@ -21,7 +21,7 @@ class BaseComponent(ABC):
         
         self.x, self.y, self.width, self.height = rect
         
-        self.style = Style(style | kwargs)
+        self.style = style | kwargs
         self.is_dirty = True # forces the element to be redrawn on first render
         
     
@@ -186,6 +186,16 @@ class BaseComponent(ABC):
         w, h = self.get_width(surface), self.get_height(surface)
         return pygame.Rect(x, y, w, h)
     
+    
+    @property 
+    def style(self) -> Style:
+        return self._style
+
+
+    @style.setter
+    def style(self, value: Style | dict[str, Any]) -> None:
+        self._style = Style(value)
+        
     
     @abstractmethod
     def update(self, dt: int) -> None:
