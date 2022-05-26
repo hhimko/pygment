@@ -42,7 +42,7 @@ def test_style_overwrite_raises(style: Style):
     ("hidden",                 int | bool)
 ])      
 def test_style_type_checking_passes(style: Style, attr: str, ret_type: type):
-    style.get(attr, "dummy_default", type=ret_type)
+    style.get(attr, "dummy_default", expected_type=ret_type)
 
 
 @pytest.mark.parametrize("attr, ret_type", [
@@ -53,5 +53,5 @@ def test_style_type_checking_passes(style: Style, attr: str, ret_type: type):
 ])      
 def test_style_type_checking_raises(style: Style, attr: str, ret_type: type):
     with pytest.raises(TypeError):
-        style.get(attr, "dummy_default", type=ret_type)
+        style.get(attr, "dummy_default", expected_type=ret_type)
         

@@ -55,11 +55,10 @@ def isinstance_generic(val: Any, type_spec: _UnionType | tuple[Type, ...]) -> bo
         
         
         
-_type = type
 _VT = TypeVar("_VT", bound=Any)
 class Style(dict[str, Any]):
     """ Dictionary based class for defining component visual style. """
-    def get(self, key: str, /, default: _VT, type: type[_VT] = Type[_VT]) -> _VT:
+    def get(self, key: str, /, default: _VT, expected_type: type[_VT]) -> _VT:
         """ Return the value for key if key is in the dictionary, else default. 
         
             The function lets you specify an expected return type to check against the retrieved value.
@@ -68,14 +67,14 @@ class Style(dict[str, Any]):
             Attr:
                 key: the key to lookup in the dictionary
                 default: the default return value
-                type: optional return type specifier to check at runtime
+                type: return type specifier to check at runtime
             
             Raises:
                 TypeError when the retrieved value doesn't match against the type parameter 
         """
         attr = super().get(key, default)
-        if type and not isinstance_generic(attr, type):
-            raise TypeError(f"key '{key}' type expected to be '{type}', got '{_type(attr)}' instead")
+        if not isinstance_generic(attr, expected_type):
+            raise TypeError(f"key '{key}' type expected to be '{expected_type}', got '{attr}' of type '{type(attr)}' instead")
         return attr
     
     
