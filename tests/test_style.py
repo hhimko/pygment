@@ -33,3 +33,25 @@ def test_style_setattr(style: Style):
 def test_style_overwrite_raises(style: Style):
     with pytest.raises(AttributeError):
         style.get = lambda *_, **__: None
+        
+        
+@pytest.mark.parametrize("attr, ret_type", [
+    ("color",  tuple[int, int, int] | int),
+    ("text_size",             int | float),
+    ("text_color",        tuple[int, ...]),
+    ("hidden",                 int | bool)
+])      
+def test_style_type_checking_passes(style: Style, attr: str, ret_type: type):
+    style.get(attr, "dummy_default", type=ret_type)
+
+
+@pytest.mark.parametrize("attr, ret_type", [
+    ("color",  tuple[str | bool, ...]),
+    ("text_size",        list | tuple),
+    ("text_color",    tuple[str, ...]),
+    ("hidden",                complex)
+])      
+def test_style_type_checking_raises(style: Style, attr: str, ret_type: type):
+    with pytest.raises(TypeError):
+        style.get(attr, "dummy_default", type=ret_type)
+        
