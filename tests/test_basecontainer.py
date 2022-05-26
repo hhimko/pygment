@@ -3,11 +3,11 @@ from tests.testutils import make_concrete
 
 import gc
 
-import pygment
+import pygment.component.bases
 
 
-BaseComponent = make_concrete(pygment.component.BaseComponent)
-BaseContainer = make_concrete(pygment.component.BaseContainer)
+BaseComponent = make_concrete(pygment.component.bases.BaseComponent)
+BaseContainer = make_concrete(pygment.component.bases.BaseContainer)
 
 
 @pytest.fixture

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Generic, TypeVar, Iterator
 import weakref
 
-from pygment.component.basecomponent import BaseComponent
+from pygment.component.bases import BaseComponent
 from pygment.editor.type import _UnitRect
 from pygment.editor import Style
 

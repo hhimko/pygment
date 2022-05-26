@@ -6,7 +6,7 @@ import uuid
 
 import pygame
 
-import pygment
+import pygment.component.bases
 from pygment.editor.type import SizeUnitType, _UnitRect
 from pygment.editor.unit import str_to_unit
 from pygment.editor import Style
@@ -207,7 +207,7 @@ class BaseComponent(ABC):
         pass    
     
     
-    def join(self, container: pygment.component.BaseContainer) -> None:
+    def join(self, container: pygment.component.bases.BaseContainer) -> None:
         """ Join a container component as a child in order to inherit its style.
             Alernatively you can call `container.add(component)`.
 
