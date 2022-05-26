@@ -6,10 +6,10 @@ import uuid
 
 import pygame
 
-import pygment.component.bases
-from pygment.editor.type import SizeUnitType, _UnitRect
-from pygment.editor.unit import str_to_unit
+from pygment.editor.unit import SizeUnitType, str_to_unit
+from pygment.editor.type import _UnitRect
 from pygment.editor import Style
+import pygment.component.bases
         
 
 class BaseComponent(ABC):

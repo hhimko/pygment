@@ -1,8 +1,9 @@
+from __future__ import annotations
 from weakref import WeakKeyDictionary
 from typing import Sequence
 import uuid
 
-from pygment.component.bases import BaseComponent
+import pygment.component.bases
 import pygame
 
 
@@ -24,7 +25,7 @@ class ViewRenderer:
         self._surface = surface
         
         
-    def render(self, layout: Sequence[BaseComponent]) -> None:
+    def render(self, layout: Sequence[pygment.component.bases.BaseComponent]) -> None:
         surf_size = self.surface.get_size()
         if self._surface_size != surf_size:
             self._surf_cache.clear()

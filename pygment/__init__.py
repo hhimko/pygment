@@ -1,2 +1,3 @@
+from .core.viewrenderer import ViewRenderer
 from . import component
-from .viewrenderer import ViewRenderer
+from . import editor
