@@ -2,7 +2,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from weakref import ReferenceType
 from typing import Any
-import uuid
 
 import pygame
 
@@ -17,12 +16,10 @@ class BaseComponent(ABC):
     def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, **kwargs):
         self._name = name
         self._parent: ReferenceType[BaseComponent] | None = None
-        self._uuid = uuid.uuid4()
         
         self.x, self.y, self.width, self.height = rect
         
         self.style = style | kwargs
-        self.is_dirty = True # forces the element to be redrawn on first render
         
     
     @property
@@ -40,12 +37,6 @@ class BaseComponent(ABC):
         if not self._parent:
             return None
         return self._parent()
-    
-    
-    @property
-    def uuid(self) -> uuid.UUID:
-        """ Get this component's UUID. """
-        return self._uuid
     
     
     @property 
@@ -198,11 +189,14 @@ class BaseComponent(ABC):
         
     
     @abstractmethod
-    def update(self, dt: int) -> None:
+    def update(self, dt: int) -> bool:
         """ Update the component state. 
         
             Args:
                 dt: elapsed time is ms since the last frame
+                
+            Returns:
+                `True` or `False` whether the component is dirty and should be rerendered
         """
         pass
 

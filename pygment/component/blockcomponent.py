@@ -3,14 +3,13 @@ import pygame
 from .bases import BaseComponent
 import pygment.editor.type
 
-
 _ColorValue = pygment.editor.type._ColorValue
 
 
 class BlockComponent(BaseComponent):
     """ Renderable component class. """
-    def update(self, dt: int) -> None:
-        pass
+    def update(self, dt: int) -> bool:
+        return False
     
     
     def render(self, surface: pygame.surface.Surface) -> None:
