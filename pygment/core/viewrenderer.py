@@ -3,6 +3,7 @@ from __future__ import annotations
 import pygame
 
 from pygment.component.bases import BaseComponent
+from pygment.component.bases.basecontainer import BaseContainer
 
 
 class ViewRenderer:
@@ -11,6 +12,8 @@ class ViewRenderer:
         self._surface.fill((0,0,0,0))
         
         self._dirty: set[BaseComponent] = set(layout)
+        self._pressed: set[BaseComponent] = set()
+        self._hovered: set[BaseComponent] = set()
         self._layout = layout
 
         
@@ -43,9 +46,11 @@ class ViewRenderer:
     def update(self, dt: int) -> None:
         """ Update the state of this renderer's layout by `dt` ticks. """
         mouse_pos = pygame.mouse.get_pos()
+        lmb_pressed = pygame.mouse.get_pressed()[0]
         
         for component in self._layout:
-            component.hovered = component.get_rect(self._surface).collidepoint(mouse_pos)
+            self._update_mouse_hover(component, mouse_pos)
+            self._update_mouse_click(component, lmb_pressed)
                
             if component.update(dt):
                 self._dirty.add(component)
@@ -64,4 +69,40 @@ class ViewRenderer:
             
         self._dirty.clear()
         dest_surface.blit(self._surface, dest)
+        
+        
+    def _update_mouse_click(self, component: BaseComponent, mouse_pressed: bool) -> None:
+        was_pressed = component in self._pressed
+        is_pressed  =  mouse_pressed and component in self._hovered
+        if is_pressed: component.on_mouse_down()
+        
+        if was_pressed != is_pressed:
+            if is_pressed:
+                component.on_mouse_click()
+                self._pressed.add(component)
+            else:
+                component.on_mouse_up()
+                self._pressed.remove(component)
+        
+        if isinstance(component, BaseContainer):
+            for child in component:
+                self._update_mouse_click(child, mouse_pressed)
+        
+        
+    def _update_mouse_hover(self, component: BaseComponent, mouse_pos: tuple[int, int]) -> None:
+        was_hover = component in self._hovered
+        is_hover  = component.get_rect(self._surface).collidepoint(mouse_pos)
+        if is_hover: component.on_mouse_over()
+        
+        if was_hover != is_hover:
+            if is_hover: 
+                component.on_mouse_enter()
+                self._hovered.add(component)
+            else: 
+                component.on_mouse_leave()
+                self._hovered.remove(component)
+        
+        if isinstance(component, BaseContainer):
+            for child in component:
+                self._update_mouse_hover(child, mouse_pos)
             

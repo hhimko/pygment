@@ -16,6 +16,9 @@ class BaseComponent(ABC):
     """ Base class defining a renderable UI element. """
     on_mouse_over = callback_property()
     on_mouse_enter = callback_property()
+    on_mouse_click = callback_property()
+    on_mouse_down = callback_property()
+    on_mouse_up = callback_property()
     on_mouse_leave = callback_property()
     
     def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, **kwargs):
@@ -186,22 +189,6 @@ class BaseComponent(ABC):
         return pygame.Rect(x, y, w, h)
     
     
-    @property
-    def hovered(self) -> bool:
-        """ Get or set this components hover state. """
-        return self._hovered
-    
-    
-    @hovered.setter
-    def hovered(self, state: bool) -> None:
-        if state != self._hovered:
-            if state:
-                self.on_mouse_enter()
-            else:
-                self.on_mouse_leave()
-        self._hovered = state
-    
-    
     @property 
     def style(self) -> Style:
         return self._style
@@ -221,9 +208,6 @@ class BaseComponent(ABC):
             Returns:
                 `True` or `False` whether the component is dirty and should be rerendered
         """
-        if self._hovered:
-            self.on_mouse_over()
-        
         return self.style.poll_changes()
 
 
