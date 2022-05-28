@@ -9,9 +9,10 @@ from pygment.editor import Style
 
 _T = TypeVar('_T', bound=BaseComponent)
 class BaseContainer(BaseComponent, Generic[_T]):
-    def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, *elements: _T, **kwargs):
+    def __init__(self, name: str, rect: _UnitRect, *elements: _T, style: Style | dict[str, Any] = {},  **kwargs):
         super().__init__(name, rect, style, **kwargs)
-        self.elements: dict[str, _T] = {} # built-in dict has the ability to remember insertion order since python3.7
+        self.__dict__["elements"] = {} # built-in dict has the ability to remember insertion order since python3.7
+        self.elements: dict[str, _T]
         
         for element in elements:
             self.add(element)
@@ -37,10 +38,15 @@ class BaseContainer(BaseComponent, Generic[_T]):
         component._parent = weakref.ref(self)
         
         
-    def __getattr__(self, attr: str) -> _T:
-        if not "elements" in dir(self):
-            raise AttributeError(f"Container '{self.name}' is missing 'self.elements'")
+    def update(self, dt: int) -> bool:
+        dirty = super().update(dt)
+        for component in self:
+            dirty |= component.update(dt)
+            
+        return dirty
         
+        
+    def __getattr__(self, attr: str) -> _T:
         element = self.elements.get(attr) 
         if element is None:
             raise AttributeError(f"container '{self.name}' does not contain element with name '{attr}'")

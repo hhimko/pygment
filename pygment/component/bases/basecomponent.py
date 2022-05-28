@@ -72,9 +72,10 @@ class BaseComponent(ABC):
             Args:
                 surface: pygame `Surface` object
         """
-        if isinstance(self._x, SizeUnitType):
-            return self._x.evaluate(self, surface)
-        return self._x
+        x = self._x.evaluate(self, surface) if isinstance(self._x, SizeUnitType) else self._x
+        if self.parent:
+            x += self.parent.get_x(surface)
+        return x
         
         
     @property 
@@ -104,9 +105,10 @@ class BaseComponent(ABC):
             Args:
                 surface: pygame `Surface` object
         """
-        if isinstance(self._y, SizeUnitType):
-            return self._y.evaluate(self, surface)
-        return self._y
+        y = self._y.evaluate(self, surface) if isinstance(self._y, SizeUnitType) else self._y
+        if self.parent:
+            y += self.parent.get_y(surface)
+        return y
 
         
     @property 
