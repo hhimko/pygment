@@ -4,6 +4,7 @@ from weakref import ReferenceType
 from typing import Any
 
 import pygame
+from pygment.core import callback_property
 
 from pygment.editor.unit import SizeUnitType, str_to_unit
 from pygment.editor.type import _UnitRect
@@ -13,9 +14,14 @@ import pygment.component.bases
 
 class BaseComponent(ABC):
     """ Base class defining a renderable UI element. """
+    on_mouse_over = callback_property()
+    on_mouse_enter = callback_property()
+    on_mouse_leave = callback_property()
+    
     def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, **kwargs):
         self._name = name
         self._parent: ReferenceType[BaseComponent] | None = None
+        self._hovered = False
         
         self.x, self.y, self.width, self.height = rect
         
@@ -178,6 +184,22 @@ class BaseComponent(ABC):
         return pygame.Rect(x, y, w, h)
     
     
+    @property
+    def hovered(self) -> bool:
+        """ Get or set this components hover state. """
+        return self._hovered
+    
+    
+    @hovered.setter
+    def hovered(self, state: bool) -> None:
+        if state != self._hovered:
+            if state:
+                self.on_mouse_enter()
+            else:
+                self.on_mouse_leave()
+        self._hovered = state
+    
+    
     @property 
     def style(self) -> Style:
         return self._style
@@ -188,7 +210,6 @@ class BaseComponent(ABC):
         self._style = Style(value)
         
     
-    @abstractmethod
     def update(self, dt: int) -> bool:
         """ Update the component state. 
         
@@ -198,7 +219,10 @@ class BaseComponent(ABC):
             Returns:
                 `True` or `False` whether the component is dirty and should be rerendered
         """
-        pass
+        if self._hovered:
+            self.on_mouse_over()
+        
+        return self.style.poll_changes()
 
 
     @abstractmethod
@@ -213,7 +237,7 @@ class BaseComponent(ABC):
     
     def join(self, container: pygment.component.bases.BaseContainer) -> None:
         """ Join a container component as a child in order to inherit its style.
-            Alernatively you can call `container.add(component)`.
+            Alernative way of calling `container.add(component)`.
 
             Args:
                 container: the container to join

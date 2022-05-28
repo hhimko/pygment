@@ -8,10 +8,6 @@ _ColorValue = pygment.editor.type._ColorValue
 
 class BlockComponent(BaseComponent):
     """ Renderable component class. """
-    def update(self, dt: int) -> bool:
-        return False
-    
-    
     def render(self, surface: pygame.surface.Surface) -> None:
         if not self.style.get("hidden", False, expected_type=bool):
             rect = self.get_rect(surface)

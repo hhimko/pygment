@@ -9,6 +9,7 @@ COL_LIGHTGRAY = (34,32,38)
 pygame.init()
 pygame.display.set_caption("Pygment example")
 window = pygame.display.set_mode((400, 600), flags=pygame.RESIZABLE)
+clock = pygame.time.Clock()
 
 header = pygment.component.BlockComponent("header", (0, 0, "100sw", 50))
 header.style.color = COL_DARKGRAY
@@ -21,11 +22,12 @@ button_style = {
     }
 
 button1 = pygment.component.BlockComponent("button1", ("15sw", 100, "70sw", 70), style=button_style)
+button1.on_mouse_enter = lambda obj: setattr(obj.style, "color", COL_LIGHTGRAY)
+button1.on_mouse_leave = lambda obj: setattr(obj.style, "color", COL_DARKGRAY)
 button2 = pygment.component.BlockComponent("button2", ("15sw", 200, "70sw", 70), style=button_style)
 
 layout = (header, button1, button2)
 renderer = pygment.ViewRenderer(window.get_size(), layout)
-
 
 finished = False
 while not finished:
@@ -36,6 +38,9 @@ while not finished:
         if event.type == pygame.VIDEORESIZE:
             renderer.size = event.size
             
+    dt = clock.tick(60)
+    renderer.update(dt)
+
     window.fill(COL_BLACK)
     renderer.render(window, (0, 0))
     pygame.display.flip()

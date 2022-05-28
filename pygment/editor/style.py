@@ -56,6 +56,11 @@ def isinstance_generic(val: Any, type_spec: _UnionType | tuple[Type, ...]) -> bo
         
 _VT = TypeVar("_VT", bound=Any)
 class Style(dict[str, Any]):
+    def __init__(self, obj: dict[str, Any] = {}, **kwargs: Any):
+        super().__init__(obj | kwargs)
+        self.__dict__["_changes"] = set(obj | kwargs)
+    
+    
     """ Dictionary based class for defining component visual style. """
     def get(self, key: str, /, default: _VT, expected_type: type[_VT]) -> _VT:
         """ Return the value for key if key is in the dictionary, else default. 
@@ -66,10 +71,10 @@ class Style(dict[str, Any]):
             Attr:
                 key: the key to lookup in the dictionary
                 default: the default return value
-                type: return type specifier to check at runtime
+                expected_type: return type specifier checked at runtime
             
             Raises:
-                TypeError when the retrieved value doesn't match against the type parameter 
+                TypeError when the retrieved value doesn't match against the expected_type parameter 
         """
         attr = super().get(key, default)
         if not isinstance_generic(attr, expected_type):
@@ -77,12 +82,25 @@ class Style(dict[str, Any]):
         return attr
     
     
-    def __getattr__(self, name: str) -> Any:
-        return super().__getitem__(name)
+    def poll_changes(self) -> bool:
+        """ Returns whether any changes were made from when this method was last called. """
+        changes = bool(self._changes)
+        self._changes.clear()
+        return changes
     
     
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name in dir(self):
-            raise AttributeError(f"attribute '{name}' is read-only")
-        return super().__setitem__(name, value)
+    def __getattr__(self, key: str) -> Any:
+        return self.__getitem__(key)
+    
+    
+    def __setattr__(self, key: str, value: Any) -> None:
+        if key in dir(self):
+            raise AttributeError(f"attribute '{key}' is read-only")
+        self.__setitem__(key, value)
+    
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        if value != super().get(key):
+            self._changes.add(key)
+        super().__setitem__(key, value)
     
