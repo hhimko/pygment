@@ -1,5 +1,6 @@
 import pygame
 import pygment
+from pygment.component import BlockComponent, Div
 
 COL_BLACK = (5,5,6)
 COL_DARKGRAY = (23,22,26)
@@ -8,25 +9,28 @@ COL_LIGHTGRAY = (34,32,38)
 
 pygame.init()
 pygame.display.set_caption("Pygment example")
-window = pygame.display.set_mode((400, 600), flags=pygame.RESIZABLE)
+window = pygame.display.set_mode((500, 600), flags=pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
-header = pygment.component.BlockComponent("header", (0, 0, "100sw", 50))
+header = BlockComponent("header", (0, 0, "100sw", 50))
 header.style.color = COL_DARKGRAY
 
 button_style = {
     "color": COL_DARKGRAY, 
-    "border_thickness": 4, 
-    "border_radius": 20, 
+    "border_thickness": 2, 
+    "border_radius": 10, 
     "border_color": COL_LIGHTGRAY
     }
 
-button1 = pygment.component.BlockComponent("button1", ("15sw", 100, "70sw", 70), style=button_style)
-button1.on_mouse_enter = lambda obj: setattr(obj.style, "color", COL_LIGHTGRAY)
-button1.on_mouse_leave = lambda obj: setattr(obj.style, "color", COL_DARKGRAY)
-button2 = pygment.component.BlockComponent("button2", ("15sw", 200, "70sw", 70), style=button_style)
+section = Div("section", ("15sw", 100, "70sw", 270), color=(30,20,60), border_radius=20)
+section.add(BlockComponent("button1", ("10pw", 50, "80pw", 70), style=button_style))
+section.add(BlockComponent("button2", ("10pw", 150, "80pw", 70), style=button_style))
 
-layout = (header, button1, button2)
+section.button1.on_mouse_enter = lambda obj: setattr(obj.style, "color", COL_LIGHTGRAY)
+section.button1.on_mouse_leave = lambda obj: setattr(obj.style, "color", COL_DARKGRAY)
+section.button2.on_mouse_click = lambda obj: print("click!")
+
+layout = (header, section)
 renderer = pygment.ViewRenderer(window.get_size(), layout)
 
 finished = False
