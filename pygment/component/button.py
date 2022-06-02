@@ -1,7 +1,8 @@
 # import pygame
 
-# from pygment.component import BaseComponent
+# from pygment.component.bases import BaseComponent
 # from pygment.core import callback_property
+# from pygment.editor.type import _UnitRect
 
 
 # class Button(BaseComponent):
@@ -10,6 +11,10 @@
 #     on_mouse_over    = callback_property()
 #     on_mouse_down    = callback_property()
 #     on_mouse_up      = callback_property()
+    
+    
+#     def __init__(self, name: str, rect: _UnitRect, **kwargs):
+#         super().__init__(name, rect, **kwargs)
 
 #     # def postinit(self) -> None:
 #     #     self.is_mouse_pressed = False

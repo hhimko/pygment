@@ -33,6 +33,7 @@ section.button2.on_mouse_click = lambda obj: print("click!")
 layout = (header, section)
 renderer = pygment.ViewRenderer(window.get_size(), layout)
 
+
 finished = False
 while not finished:
     for event in pygame.event.get():

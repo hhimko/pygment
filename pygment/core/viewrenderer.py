@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pygame
 
+from pygment.core.layoutnode import LayoutNode
 from pygment.component.bases import BaseComponent
-from pygment.component.bases.basecontainer import BaseContainer
 
 
 class ViewRenderer:
@@ -64,7 +64,7 @@ class ViewRenderer:
                 dest: the destination (x, y) cordinates 
         """
         for component in self._dirty:
-            self._surface.fill((0,0,0,0), component.get_rect(self._surface))
+            self._surface.fill((0,0,0,0), component.client_rect(self._surface))
             component.render(self._surface)
             
         self._dirty.clear()
@@ -84,14 +84,13 @@ class ViewRenderer:
                 component.on_mouse_up()
                 self._pressed.remove(component)
         
-        if isinstance(component, BaseContainer):
-            for child in component:
-                self._update_mouse_click(child, mouse_pressed)
+        for child in component.children:
+            self._update_mouse_click(child, mouse_pressed)
         
         
     def _update_mouse_hover(self, component: BaseComponent, mouse_pos: tuple[int, int]) -> None:
         was_hover = component in self._hovered
-        is_hover  = component.get_rect(self._surface).collidepoint(mouse_pos)
+        is_hover  = component.client_rect(self._surface).collidepoint(mouse_pos)
         if is_hover: component.on_mouse_over()
         
         if was_hover != is_hover:
@@ -102,7 +101,6 @@ class ViewRenderer:
                 component.on_mouse_leave()
                 self._hovered.remove(component)
         
-        if isinstance(component, BaseContainer):
-            for child in component:
-                self._update_mouse_hover(child, mouse_pos)
+        for child in component.children:
+            self._update_mouse_hover(child, mouse_pos)
             

@@ -58,7 +58,8 @@ _VT = TypeVar("_VT", bound=Any)
 class Style(dict[str, Any]):
     def __init__(self, obj: dict[str, Any] = {}, **kwargs: Any):
         super().__init__(obj | kwargs)
-        self.__dict__["_changes"] = set(obj | kwargs)
+        self.__dict__["_changes"] = {}
+        self._changes: dict[str, Any]
     
     
     """ Dictionary based class for defining component visual style. """
@@ -82,9 +83,9 @@ class Style(dict[str, Any]):
         return attr
     
     
-    def poll_changes(self) -> bool:
-        """ Returns whether any changes were made from when this method was last called. """
-        changes = bool(self._changes)
+    def poll_changes(self) -> dict[str, Any]:
+        """ Returns names of style attribute changes that were made from when this method was last called. """
+        changes = self._changes.copy()
         self._changes.clear()
         return changes
     
@@ -100,7 +101,8 @@ class Style(dict[str, Any]):
     
     
     def __setitem__(self, key: str, value: Any) -> None:
-        if value != super().get(key):
-            self._changes.add(key)
+        prev = super().get(key)
+        if value != prev:
+            self._changes[key] = prev
         super().__setitem__(key, value)
     

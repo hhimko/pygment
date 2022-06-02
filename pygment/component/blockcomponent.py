@@ -10,7 +10,7 @@ class BlockComponent(BaseComponent):
     """ Renderable component class. """
     def render(self, surface: pygame.surface.Surface) -> None:
         if not self.style.get("hidden", False, expected_type=bool):
-            rect = self.get_rect(surface)
+            rect = self.client_rect(surface)
             color = self.style.get("color", 0, expected_type=_ColorValue)
             
             border_radius = round(max(self.style.get("border_radius", 0, expected_type=int | float), 0))
