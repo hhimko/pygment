@@ -1,3 +1,2 @@
-from .blockcomponent import BlockComponent
-from .div import Div
+from .frame import Frame
 # from .button import Button

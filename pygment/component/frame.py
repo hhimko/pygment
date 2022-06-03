@@ -1,12 +1,12 @@
 import pygame
 
-from .bases import BaseComponent
+from pygment.core.layoutnode import LayoutNode
 import pygment.editor.type
 
 _ColorValue = pygment.editor.type._ColorValue
 
 
-class BlockComponent(BaseComponent):
+class Frame(LayoutNode):
     """ Renderable component class. """
     def render(self, surface: pygame.surface.Surface) -> None:
         if not self.style.get("hidden", False, expected_type=bool):
@@ -21,5 +21,12 @@ class BlockComponent(BaseComponent):
             if border_thickness > 0:
                 border_color = self.style.get("border_color", 0, expected_type=_ColorValue)
                 pygame.draw.rect(surface, border_color, rect, border_thickness, border_radius)
+                
+                
+    def update(self, dt: int) -> bool:
+        dirty = bool(self.style.poll_changes())
+        for component in self:
+            dirty |= component.update(dt)
             
+        return dirty
             

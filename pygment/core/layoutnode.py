@@ -1,21 +1,24 @@
 from __future__ import annotations
-from typing import Iterator
+from typing import Any, Iterator
 import weakref
 
 import pygame
 
-from pygment.editor.unit import SizeUnitType, str_to_unit
+from pygment.core.uielement import UIElement
+
+from pygment.editor.unit import SizeUnitType
 from pygment.editor.type import _UnitRect
+from pygment.editor import Style
 
 
-class LayoutNode:
+class LayoutNode(UIElement):
     """ Represents a linked node that can store a number of ordered children. """
-    def __init__(self, name: str, rect: _UnitRect):
+    def __init__(self, name: str, rect: _UnitRect, style: Style | dict[str, Any] = {}, **kwargs: Any):
+        super().__init__(rect, style, **kwargs)
         self.__dict__["_elements"] = {} # built-in dict has the ability to remember insertion order since python3.7
         self._elements: dict[str, LayoutNode]
         self._parent: weakref.ReferenceType[LayoutNode] | None = None
-        
-        self.x, self.y, self.width, self.height = rect
+
         self._name = name
         
     
@@ -40,145 +43,18 @@ class LayoutNode:
         return tuple(self._elements.values())
     
     
-    @property 
-    def x(self) -> float | SizeUnitType:
-        """ Get or set this component's x position.
-        
-            Setting this property to a str object will automatically parse it to a size unit object. 
-            
-            Raises:
-                ValueError when setting the value to a string that could not be parsed to any size unit.
-        """
-        return self._x
-    
-    
-    @x.setter
-    def x(self, value: float | str | SizeUnitType) -> None:
-        if isinstance(value, str):
-            value = str_to_unit(value) 
-        self._x = value
-        
-        
     def client_x(self, surface: pygame.surface.Surface) -> float:
-        """ Compute this component's x position based on a passed surface's dimensions. 
-        
-            Getting the x position value with this method guarantees a float return type.
-
-            Args:
-                surface: pygame `Surface` object
-        """
-        x = self._x.evaluate(self, surface) if isinstance(self._x, SizeUnitType) else self._x
+        x = super().client_x(surface)
         if self.parent:
             x += self.parent.client_x(surface)
         return x
-        
-        
-    @property 
-    def y(self) -> float | SizeUnitType:
-        """ Get or set this component's y position.
-        
-            Setting this property to a str object will automatically parse it to a size unit object. 
-            
-            Raises:
-                ValueError when setting the value to a string that could not be parsed to any size unit.
-        """
-        return self._y
     
     
-    @y.setter
-    def y(self, value: float | str | SizeUnitType) -> None:
-        if isinstance(value, str):
-            value = str_to_unit(value) 
-        self._y = value
-        
-        
     def client_y(self, surface: pygame.surface.Surface) -> float:
-        """ Compute this component's y position based on a passed surface's dimensions. 
-        
-            Getting the y position value with this method guarantees a float return type.
-
-            Args:
-                surface: pygame `Surface` object
-        """
-        y = self._y.evaluate(self, surface) if isinstance(self._y, SizeUnitType) else self._y
+        y = super().client_y(surface)
         if self.parent:
             y += self.parent.client_y(surface)
         return y
-
-        
-    @property 
-    def width(self) -> float | SizeUnitType:
-        """ Get or set this component's width.
-        
-            Setting this property to a str object will automatically parse it to a size unit object. 
-            
-            Raises:
-                ValueError when setting the value to a string that could not be parsed to any size unit.
-        """
-        return self._width
-    
-    
-    @width.setter
-    def width(self, value: float | str | SizeUnitType) -> None:
-        if isinstance(value, str):
-            value = str_to_unit(value) 
-        self._width = value
-        
-
-    def client_width(self, surface: pygame.surface.Surface) -> float:
-        """ Compute this component's width based on a passed surface's dimensions. 
-        
-            Getting the width value with this method guarantees a float return type.
-
-            Args:
-                surface: pygame `Surface` object
-        """
-        if isinstance(self._width, SizeUnitType):
-            return self._width.evaluate(self, surface)
-        return self._width
-    
-    
-    @property 
-    def height(self) -> float | SizeUnitType:
-        """ Get or set this component's height.
-        
-            Setting this property to a str object will automatically parse it to a size unit object. 
-            
-            Raises:
-                ValueError when setting the value to a string that could not be parsed to any size unit.
-        """
-        return self._height
-    
-    
-    @height.setter
-    def height(self, value: float | str | SizeUnitType) -> None:
-        if isinstance(value, str):
-            value = str_to_unit(value) 
-        self._height = value
-
-
-    def client_height(self, surface: pygame.surface.Surface) -> float:
-        """ Compute this component's height based on a passed surface's dimensions. 
-        
-            Getting the height value with this method guarantees a float return type.
-
-            Args:
-                surface: pygame `Surface` object
-        """
-        if isinstance(self._height, SizeUnitType):
-            return self._height.evaluate(self, surface)
-        return self._height
-    
-    
-    def client_rect(self, surface: pygame.surface.Surface) -> pygame.Rect:
-        """ Return a new `pygame.Rect` object from this component's position and size based on a passed surface's dimensions. 
-        
-            Args:
-                surface: pygame `Surface` object
-        """
-        x, y = self.client_x(surface), self.client_y(surface)
-        w, h = self.client_width(surface), self.client_height(surface)
-        return pygame.Rect(x, y, w, h)
     
     
     def add(self, child: LayoutNode) -> None:

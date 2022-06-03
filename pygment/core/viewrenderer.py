@@ -3,17 +3,17 @@ from __future__ import annotations
 import pygame
 
 from pygment.core.layoutnode import LayoutNode
-from pygment.component.bases import BaseComponent
+from pygment.core.uielement import UIElement
 
 
 class ViewRenderer:
-    def __init__(self, size: tuple[int, int], layout: tuple[BaseComponent, ...]):
+    def __init__(self, size: tuple[int, int], layout: tuple[LayoutNode, ...]):
         self._surface = pygame.surface.Surface(size).convert_alpha()
         self._surface.fill((0,0,0,0))
         
-        self._dirty: set[BaseComponent] = set(layout)
-        self._pressed: set[BaseComponent] = set()
-        self._hovered: set[BaseComponent] = set()
+        self._dirty: set[LayoutNode] = set(layout)
+        self._pressed: set[UIElement] = set()
+        self._hovered: set[UIElement] = set()
         self._layout = layout
 
         
@@ -24,7 +24,7 @@ class ViewRenderer:
     
     
     @property
-    def layout(self) -> tuple[BaseComponent, ...]:
+    def layout(self) -> tuple[LayoutNode, ...]:
         """ Get this renderer's layout. """
         return self._layout
     
@@ -67,11 +67,14 @@ class ViewRenderer:
             self._surface.fill((0,0,0,0), component.client_rect(self._surface))
             component.render(self._surface)
             
+            for child in component:
+                child.render(self._surface)
+            
         self._dirty.clear()
         dest_surface.blit(self._surface, dest)
         
         
-    def _update_mouse_click(self, component: BaseComponent, mouse_pressed: bool) -> None:
+    def _update_mouse_click(self, component: LayoutNode, mouse_pressed: bool) -> None:
         was_pressed = component in self._pressed
         is_pressed  =  mouse_pressed and component in self._hovered
         if is_pressed: component.on_mouse_down()
@@ -88,7 +91,7 @@ class ViewRenderer:
             self._update_mouse_click(child, mouse_pressed)
         
         
-    def _update_mouse_hover(self, component: BaseComponent, mouse_pos: tuple[int, int]) -> None:
+    def _update_mouse_hover(self, component: LayoutNode, mouse_pos: tuple[int, int]) -> None:
         was_hover = component in self._hovered
         is_hover  = component.client_rect(self._surface).collidepoint(mouse_pos)
         if is_hover: component.on_mouse_over()

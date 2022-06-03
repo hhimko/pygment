@@ -1,6 +1,8 @@
 from functools import partial
 from typing import Any, Callable
 
+__all__ = ["callback_property"]
+
 
 class callback_property(property):
     """ Descriptor class for callable properties. 

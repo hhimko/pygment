@@ -6,6 +6,7 @@ import re
 import pygame
 
 import pygment.core.layoutnode as layoutnode
+import pygment.core.uielement as uielement
 
 
 __all__ = ["sw", "sh", "pw", "ph"]
@@ -29,7 +30,7 @@ class SizeUnitType(ABC):
         
         
     @abstractmethod
-    def evaluate(self, obj: layoutnode.LayoutNode, surface: pygame.surface.Surface) -> int:
+    def evaluate(self, obj: uielement.UIElement, surface: pygame.surface.Surface) -> int:
         """ Compute this unit's value for a given component and renderer. """
         pass
     
@@ -65,7 +66,7 @@ class SizeUnitType(ABC):
 class sw(SizeUnitType):
     """ Graphic unit representing a 1% of the renderer surface width. """
     __slots__ = ("_value")
-    def evaluate(self, obj: layoutnode.LayoutNode, surface: pygame.surface.Surface) -> int:
+    def evaluate(self, obj: uielement.UIElement, surface: pygame.surface.Surface) -> int:
         return round(surface.get_width() * self._value)
     
 
@@ -74,7 +75,7 @@ class sw(SizeUnitType):
 class sh(SizeUnitType):
     """ Graphic unit representing a 1% of the renderer surface height. """
     __slots__ = ("_value")
-    def evaluate(self, obj: layoutnode.LayoutNode, surface: pygame.surface.Surface) -> int:
+    def evaluate(self, obj: uielement.UIElement, surface: pygame.surface.Surface) -> int:
         return round(surface.get_height() * self._value)
     
     
@@ -83,25 +84,24 @@ class sh(SizeUnitType):
 class pw(SizeUnitType):
     """ Graphic unit representing a 1% of the object's parent width. """
     __slots__ = ("_value")
-    def evaluate(self, obj: layoutnode.LayoutNode, surface: pygame.surface.Surface) -> int:
-        if not obj.parent:
-            return round(surface.get_width() * self._value)
+    def evaluate(self, obj: uielement.UIElement, surface: pygame.surface.Surface) -> int:
+        if isinstance(obj, layoutnode.LayoutNode) and obj.parent:
+            parent_width = obj.parent.client_width(surface)
+            return round(parent_width * self._value)
         
-        parent_width = obj.parent.client_width(surface)
-        return round(parent_width * self._value)
-    
+        return round(surface.get_width() * self._value)
     
     
     
 class ph(SizeUnitType):
     """ Graphic unit representing a 1% of the object's parent height. """
     __slots__ = ("_value")
-    def evaluate(self, obj: layoutnode.LayoutNode, surface: pygame.surface.Surface) -> int:
-        if not obj.parent:
-            return round(surface.get_height() * self._value)
-
-        parent_height = obj.parent.client_height(surface)
-        return round(parent_height * self._value)
+    def evaluate(self, obj: uielement.UIElement, surface: pygame.surface.Surface) -> int:
+        if isinstance(obj, layoutnode.LayoutNode) and obj.parent:
+            parent_height = obj.parent.client_height(surface)
+            return round(parent_height * self._value)
+        
+        return round(surface.get_height() * self._value)
     
     
    
