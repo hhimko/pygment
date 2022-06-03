@@ -1,9 +1,7 @@
 import pygame
 
 from pygment.core.layoutnode import LayoutNode
-import pygment.editor.type
-
-_ColorValue = pygment.editor.type._ColorValue
+from pygment.editor.type import _ColorValue
 
 
 class Frame(LayoutNode):
@@ -11,12 +9,13 @@ class Frame(LayoutNode):
     def render(self, surface: pygame.surface.Surface) -> None:
         if not self.style.get("hidden", False, expected_type=bool):
             rect = self.client_rect(surface)
-            color = self.style.get("color", 0, expected_type=_ColorValue)
+            color = self.style.get("color", (0,0,0,0), expected_type=_ColorValue)
             
             border_radius = round(max(self.style.get("border_radius", 0, expected_type=int | float), 0))
             border_thickness = round(max(self.style.get("border_thickness", 0, expected_type=int | float), 0))
             
-            pygame.draw.rect(surface, color, rect, border_radius=border_radius)
+            if not (isinstance(color, tuple) and len(color) == 4 and color[3] == 0):
+                pygame.draw.rect(surface, color, rect, border_radius=border_radius)
             
             if border_thickness > 0:
                 border_color = self.style.get("border_color", 0, expected_type=_ColorValue)
@@ -28,5 +27,5 @@ class Frame(LayoutNode):
         for component in self:
             dirty |= component.update(dt)
             
-        return dirty
+        return dirty | self._dirty
             
