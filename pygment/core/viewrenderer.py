@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Callable
 
 import pygame
 
@@ -41,7 +42,7 @@ class ViewRenderer:
         self._surface.fill((0,0,0,0))
         
         self._dirty = set(self._layout)
-        
+            
         
     def update(self, dt: int) -> None:
         """ Update the state of this renderer's layout by `dt` ticks. """
@@ -65,10 +66,8 @@ class ViewRenderer:
         """
         for component in self._dirty:
             self._surface.fill((0,0,0,0), component.client_rect(self._surface))
-            component.render(self._surface)
-            
-            for child in component:
-                child.render(self._surface)
+            self._cascade_action(component, lambda component: component.render(self._surface))
+            component._dirty = False
             
         self._dirty.clear()
         dest_surface.blit(self._surface, dest)
@@ -106,4 +105,25 @@ class ViewRenderer:
         
         for child in component.children:
             self._update_mouse_hover(child, mouse_pos)
+            
+            
+    def _get_element_by_id(self, name: str) -> UIElement: # TODO: exctract to Body object
+        def _recget(component: LayoutNode) -> UIElement | None:
+            if component.name == name: return component
+            
+            for child in component:
+                return _recget(child)
+            
+        for element in self._layout:
+            out = _recget(element)
+            if out: return out
+            
+        raise KeyError(f"element with name {name} is missing from view body")
+    
+    
+    @classmethod
+    def _cascade_action(cls, component: LayoutNode, action: Callable[[LayoutNode], None]) -> None:
+        action(component)
+        for child in component:
+            cls._cascade_action(child, action)
             

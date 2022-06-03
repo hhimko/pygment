@@ -26,6 +26,7 @@ class UIElement(EventTarget, ABC):
         self.x, self.y, self.width, self.height = rect
         self.style = style | kwargs
         self._hovered = False
+        self._dirty = True
         
     
     @property 
@@ -45,6 +46,7 @@ class UIElement(EventTarget, ABC):
         if isinstance(value, str):
             value = str_to_unit(value) 
         self._x = value
+        self._dirty = True
         
         
     def client_x(self, surface: pygame.surface.Surface) -> float:
@@ -55,7 +57,10 @@ class UIElement(EventTarget, ABC):
             Args:
                 surface: pygame `Surface` object
         """
-        return self._x.evaluate(self, surface) if isinstance(self._x, SizeUnitType) else self._x
+        x = self._x.evaluate(self, surface) if isinstance(self._x, SizeUnitType) else self._x
+        if self.style.get("centered", False, bool):
+            x -= self.client_width(surface) / 2
+        return x
         
         
     @property 
@@ -75,6 +80,7 @@ class UIElement(EventTarget, ABC):
         if isinstance(value, str):
             value = str_to_unit(value) 
         self._y = value
+        self._dirty = True
         
         
     def client_y(self, surface: pygame.surface.Surface) -> float:
@@ -85,7 +91,10 @@ class UIElement(EventTarget, ABC):
             Args:
                 surface: pygame `Surface` object
         """
-        return self._y.evaluate(self, surface) if isinstance(self._y, SizeUnitType) else self._y
+        y = self._y.evaluate(self, surface) if isinstance(self._y, SizeUnitType) else self._y
+        if self.style.get("centered", False, bool):
+            y -= self.client_height(surface) / 2 
+        return y
 
         
     @property 
@@ -105,6 +114,7 @@ class UIElement(EventTarget, ABC):
         if isinstance(value, str):
             value = str_to_unit(value) 
         self._width = value
+        self._dirty = True
         
 
     def client_width(self, surface: pygame.surface.Surface) -> float:
@@ -137,6 +147,7 @@ class UIElement(EventTarget, ABC):
         if isinstance(value, str):
             value = str_to_unit(value) 
         self._height = value
+        self._dirty = True
 
 
     def client_height(self, surface: pygame.surface.Surface) -> float:

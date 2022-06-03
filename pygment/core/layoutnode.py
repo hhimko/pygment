@@ -5,8 +5,6 @@ import weakref
 import pygame
 
 from pygment.core.uielement import UIElement
-
-from pygment.editor.unit import SizeUnitType
 from pygment.editor.type import _UnitRect
 from pygment.editor import Style
 
