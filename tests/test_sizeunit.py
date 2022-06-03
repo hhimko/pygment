@@ -1,7 +1,6 @@
 import pytest
 
-from pygment.editor.type import SizeUnitType
-from pygment.editor.unit import sw, sh, pw, ph, str_to_unit
+from pygment.editor.unit import SizeUnitType, sw, sh, pw, ph, str_to_unit
 
 
 @pytest.mark.parametrize("unit_spec, expected", [
