@@ -16,7 +16,7 @@ class ViewRenderer:
         self._pressed: set[UIElement] = set()
         self._hovered: set[UIElement] = set()
         self._layout = layout
-
+        
         
     @property
     def surface(self) -> pygame.surface.Surface:

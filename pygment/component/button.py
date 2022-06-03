@@ -1,84 +1,30 @@
-# import pygame
+import pygame
 
-# from pygment.component.bases import BaseComponent
-# from pygment.core import callback_property
-# from pygment.editor.type import _UnitRect
-
-
-# class Button(BaseComponent):
-#     on_mouse_pressed = callback_property()
-#     on_mouse_click   = callback_property()
-#     on_mouse_over    = callback_property()
-#     on_mouse_down    = callback_property()
-#     on_mouse_up      = callback_property()
-    
-    
-#     def __init__(self, name: str, rect: _UnitRect, **kwargs):
-#         super().__init__(name, rect, **kwargs)
-
-#     # def postinit(self) -> None:
-#     #     self.is_mouse_pressed = False
-#     #     self._was_mouse_pressed_on_enter = False
-#     #     self.is_mouse_over    = False
+from pygment.core.layoutnode import LayoutNode
+from pygment.editor.type import _ColorValue
 
 
-#     def update(self, dt: int) -> None:
-#         mouse_pos = pygame.mouse.get_pos()
-        
-#         mouse_over = self.get_rect().collidepoint(mouse_pos)
-#         if mouse_over:
-#             self.on_mouse_over()
+class Button(LayoutNode):
+    """ Renderable component class. """
+    def render(self, surface: pygame.surface.Surface) -> None:
+        if not self.style.get("hidden", False, expected_type=bool):
+            rect = self.client_rect(surface)
+            color = self.style.get("color", (0,0,0,0), expected_type=_ColorValue)
             
-#             if not self.is_mouse_over:
-#                 self._mouse_entering()
+            border_radius = round(max(self.style.get("border_radius", 0, expected_type=int | float), 0))
+            border_thickness = round(max(self.style.get("border_thickness", 0, expected_type=int | float), 0))
             
-#             lmb_down = pygame.mouse.get_pressed()[0]
-#             if lmb_down:
-#                 self._mouse_pressing()
-#             else:
-#                 if self.is_mouse_pressed:
-#                     self._mouse_releasing()
+            pygame.draw.rect(surface, color, rect, border_radius=border_radius)
+            
+            if border_thickness > 0:
+                border_color = self.style.get("border_color", 0, expected_type=_ColorValue)
+                pygame.draw.rect(surface, border_color, rect, border_thickness, border_radius)
                 
-#         else: # mouse not over
-#             if self.is_mouse_over:
-#                 self._mouse_leaving()
-        
-        
-#     def _mouse_entering(self) -> None:
-#         """ Singly-triggered mouse event. 
-#             Played when mouse cursor enters the object boundary. 
-#         """
-#         self.is_mouse_over = True
-#         self._was_mouse_pressed_on_enter = pygame.mouse.get_pressed()[0]
-        
-        
-#     def _mouse_pressing(self) -> None:
-#         """ Continously-triggered mouse event. 
-#             Played when mouse button is pressed while cursor is over the object. 
-#         """
-#         if not self.is_mouse_pressed and not self._was_mouse_pressed_on_enter:
-#             self.on_mouse_down()
-        
-#         self.is_mouse_pressed = True
-#         self.on_mouse_pressed()
-        
-        
-#     def _mouse_releasing(self) -> None:
-#         """ Singly-triggered mouse event. 
-#             Played when mouse button was released while cursor is over the object. 
-#         """
-#         self.is_mouse_pressed = False 
-#         if not self._was_mouse_pressed_on_enter:
-#             self.on_mouse_click()
+                
+    def update(self, dt: int) -> bool:
+        dirty = bool(self.style.poll_changes())
+        for component in self:
+            dirty |= component.update(dt)
             
-#         self._was_mouse_pressed_on_enter = False
-#         self.on_mouse_up()
-        
-        
-#     def _mouse_leaving(self) -> None:
-#         """ Singly-triggered mouse event. 
-#             Played when mouse cursor leaves the object boundary.
-#         """
-#         self.is_mouse_over = False
-#         self.is_mouse_pressed = False
-        
+        return dirty | self._dirty
+    

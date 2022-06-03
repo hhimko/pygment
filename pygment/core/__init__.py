@@ -50,3 +50,4 @@ class callback_property(property):
         
     def _deleter(self, obj: Any) -> None: # type: ignore
         setattr(obj, self.callback_accessor, self.NO_OP)
+        
