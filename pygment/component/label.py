@@ -18,7 +18,10 @@ class Label(LayoutNode):
                 
                 font = pygame.font.Font(None, round(text_size * 1.3))
                 mask = rect.move((-rect.x, -rect.y))
-                surface.blit(font.render(text, True, text_color), rect, mask)
+                label_surface = font.render(text, True, text_color)
+                if self.style.get("align_center", False, expected_type=bool):
+                    rect = rect.move(((rect.w - label_surface.get_size()[0]) / 2, 0))
+                surface.blit(label_surface, rect, mask)
                 
                 
     def update(self, dt: int) -> bool:
